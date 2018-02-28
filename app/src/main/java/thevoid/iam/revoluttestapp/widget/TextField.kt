@@ -1,9 +1,10 @@
 package thevoid.iam.revoluttestapp.widget
 
 import android.content.Context
-import android.support.v7.widget.AppCompatEditText
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 
 /**
@@ -22,7 +23,8 @@ class TextField @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     fun setText(text: String?) {
         disableWatcher()
         super.setText(text)
-        super.setSelection(getText().length)
+        setSelection(getText().length)
+        post { requestFocus() }
         enableWatcher()
     }
 

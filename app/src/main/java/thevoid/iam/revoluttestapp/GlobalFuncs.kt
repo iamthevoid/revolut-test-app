@@ -1,5 +1,6 @@
 package thevoid.iam.revoluttestapp
 
+import io.reactivex.disposables.Disposable
 import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import thevoid.iam.revoluttestapp.data.model.CurrencyRate
 import java.math.BigDecimal
@@ -22,13 +23,22 @@ fun diffCallback() : DiffObservableList.Callback<CurrencyRate> {
     }
 }
 
-fun <T> add(list: MutableList<T>, vararg item : T) : List<T> {
-    list.addAll(item)
-    return list
-}
+// Util
 
 fun setPrecision(float: Float, precision : Int) : Float {
-    var value = BigDecimal(float.toDouble())
-    value = value.setScale(precision, RoundingMode.HALF_EVEN) // here the value is correct (625.30)
-    return value.toFloat()
+    return BigDecimal(float.toDouble()).setScale(precision, RoundingMode.HALF_EVEN).toFloat()
+}
+
+
+// RX
+
+fun isSubscribed(disposable: Disposable?) = disposable != null && !disposable.isDisposed
+
+fun dispose(disposable: Disposable?) {
+    disposable?.dispose()
+}
+
+fun dispose(disposable: Disposable?, vararg disposables: Disposable?) {
+    disposable?.dispose()
+    disposables.forEach { it?.dispose() }
 }

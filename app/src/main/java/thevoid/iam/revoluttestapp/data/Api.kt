@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
  */
 object Api {
 
-    private val ENDPOINT = BuildConfig.ENDPOINT
+    private const val ENDPOINT = BuildConfig.ENDPOINT
 
     private var apiInterface: ApiInterface? = null
     private lateinit var mClient: OkHttpClient
@@ -34,28 +34,21 @@ object Api {
     private fun getOkHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor()
         logging.level = HttpLoggingInterceptor.Level.BODY
-
-        val client = OkHttpClient.Builder()
+        return OkHttpClient.Builder()
                 .followSslRedirects(true)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(logging)
                 .build()
-
-
-        return client
     }
 
     private fun getRetrofit(client: OkHttpClient): Retrofit {
-        val retrofit = Retrofit.Builder()
+        return Retrofit.Builder()
                 .baseUrl(ENDPOINT)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create(Gson()))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
-
-
-        return retrofit
     }
 }

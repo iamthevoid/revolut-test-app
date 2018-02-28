@@ -9,11 +9,12 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import com.bumptech.glide.Glide
 import com.jakewharton.rxrelay2.BehaviorRelay
 import me.tatarka.bindingcollectionadapter2.BindingCollectionAdapter
 import thevoid.iam.revoluttestapp.R
+import thevoid.iam.revoluttestapp.data.model.CurrencyCode
 import thevoid.iam.revoluttestapp.removeZeroesString
+import thevoid.iam.revoluttestapp.setCurrencyCode
 import thevoid.iam.revoluttestapp.widget.TextField
 
 
@@ -35,15 +36,6 @@ fun setTextViewText(view: TextView, float: Float, precision: Int?) {
 @BindingAdapter("floatValue", "precision", requireAll = false)
 fun setFieldText(view: TextField, float: Float, precision: Int?) {
     view.setText(float.removeZeroesString(precision))
-}
-
-
-@BindingAdapter("focusOnClick")
-fun setFocusOnClick(view: TextField, requestFocus: Boolean) {
-    if (requestFocus) {
-        view.requestFocusFromTouch()
-        view.setSelection(view.text.length)
-    }
 }
 
 @BindingAdapter("editable")
@@ -74,10 +66,8 @@ fun onChange(view: TextField, relay: BehaviorRelay<Float>) {
 }
 
 @BindingAdapter("flag")
-fun setFlag(imageView: ImageView, currencyCode: String) {
-    Glide.with(imageView.context)
-            .load("http://s.xe.com/themes/xe/images/flags/big/${currencyCode.toLowerCase()}.png")
-            .into(imageView)
+fun setFlag(imageView: ImageView, currencyCode: CurrencyCode) {
+    imageView.setCurrencyCode(currencyCode)
 }
 
 @BindingAdapter("itemClick")

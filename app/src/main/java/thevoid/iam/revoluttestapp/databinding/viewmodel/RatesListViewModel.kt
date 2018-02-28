@@ -1,9 +1,13 @@
 package thevoid.iam.revoluttestapp.databinding.viewmodel
 
-import android.databinding.*
+import android.databinding.ObservableArrayList
+import android.databinding.ObservableField
+import android.databinding.ObservableFloat
+import android.databinding.ObservableList
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.view.animation.LinearInterpolator
 import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,9 +27,6 @@ import java.util.concurrent.TimeUnit
  */
 class RatesListViewModel : ViewModel() {
 
-    private val NOMINAL_EXTRA = "NOMINAL_EXTRA"
-    private val CODE_EXTRA = "CODE_EXTRA"
-
     private var ratesDisposable: Disposable? = null
     private var editValueDisposable: Disposable? = null
 
@@ -33,11 +34,9 @@ class RatesListViewModel : ViewModel() {
      * Default values for init base nominal
      */
 
-    private var nominal = ObservableFloat(100F)
+    private var nominal = ObservableFloat(DEFAULT_NOMINAL)
 
-    private var baseRate = ObservableField(CurrencyRate("EUR", 1F))
-
-    private var needRequestFocus = ObservableBoolean(false)
+    private var baseRate = ObservableField(CurrencyRate(DEFAULT_CODE, DEFAULT_RATE))
 
     /**
      * BehaviourRelay for observe text editing.
@@ -72,12 +71,12 @@ class RatesListViewModel : ViewModel() {
 
     val itemBinding: OnItemBindClass<CurrencyRate> = OnItemBindClass<CurrencyRate>()
             .map(CurrencyRate::class.java) { itemBinding, position, item ->
-                itemBinding?.set(BR.rate, if (position == 0) R.layout.rate_item else R.layout.rate_item_text)?.bindExtra(BR.nominal, nominal)?.bindExtra(BR.relay, valueRelay)?.bindExtra(BR.needRequestFocus, needRequestFocus)?.bindExtra(BR.isBaseRate, list.isFirst(item))
+                itemBinding?.set(BR.rate, if (position == 0) R.layout.rate_item else R.layout.rate_item_text)?.bindExtra(BR.nominal, nominal)?.bindExtra(BR.relay, valueRelay)?.bindExtra(BR.isBaseRate, list.isFirst(item))
             }
 
     private fun subscribeRates() {
         dispose(ratesDisposable)
-        ratesDisposable = Observable.interval(0, 1, TimeUnit.MINUTES)
+        ratesDisposable = Observable.interval(0, 1, TimeUnit.SECONDS)
                 .flatMap { Observable.defer({ Api.get().latest(baseRate.get().code) }) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -99,19 +98,21 @@ class RatesListViewModel : ViewModel() {
     }
 
     override fun saveState(bundle: Bundle) {
-        bundle.putFloat(NOMINAL_EXTRA, nominal.get())
-        bundle.putString(CODE_EXTRA, baseRate.get().code)
+        bundle.putFloat(EXTRA_NOMINAL, nominal.get())
+        bundle.putString(EXTRA_CODE, baseRate.get().code)
     }
 
     override fun restoreState(savedInstantState: Bundle) {
-        nominal.set(savedInstantState.getFloat(NOMINAL_EXTRA))
-        baseRate.set(CurrencyRate(savedInstantState.getString(CODE_EXTRA), 1F))
+        nominal.set(savedInstantState.getFloat(EXTRA_NOMINAL, DEFAULT_NOMINAL))
+        baseRate.set(CurrencyRate(savedInstantState.getString(EXTRA_CODE, DEFAULT_CODE), DEFAULT_RATE))
     }
 
 
     var onRateClick = object : ItemClickSupport.OnItemClick<CurrencyRate> {
         override fun onItemClicked(recyclerView: RecyclerView, itemView: View, position: Int, item: CurrencyRate) {
             selectItem(position, item)
+            recyclerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+            recyclerView.smoothScrollBy(0, -recyclerView.measuredHeight * 15, LinearInterpolator())
         }
     }
 
@@ -127,13 +128,12 @@ class RatesListViewModel : ViewModel() {
             recalculateRates(newItems, item)
             replaceBaseItem(item)
             items.update(newItems.sortedBy { it.code })
-            needRequestFocus.set(true)
             subscribeRates()
         }
     }
 
     private fun replaceBaseItem(item: CurrencyRate) {
-        item.rate = 1F
+        item.rate = DEFAULT_RATE
         headRate[0] = item
     }
 

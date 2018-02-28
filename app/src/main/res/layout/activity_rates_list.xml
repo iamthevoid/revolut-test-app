@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <data>
 
 
-        <import type="me.tatarka.bindingcollectionadapter2.LayoutManagers"/>
+        <import type="me.tatarka.bindingcollectionadapter2.LayoutManagers" />
 
         <variable
             name="vm"
-            type="thevoid.iam.revoluttestapp.databinding.viewmodel.RatesListViewModel"/>
+            type="thevoid.iam.revoluttestapp.databinding.viewmodel.RatesListViewModel" />
     </data>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:items="@{vm.list}"
-            app:itemClick="@{vm.onRateClick}"
-            app:supportChangeAnimations="@{false}"
-            app:layoutManager="@{LayoutManagers.linear()}"
             app:itemBinding="@{vm.itemBinding}"
-            android:id="@+id/recycler"/>
+            app:itemClick="@{vm.onRateClick}"
+            app:items="@{vm.list}"
+            app:layoutManager="@{LayoutManagers.linear()}"
+            app:nestedScrollingEnabled="@{false}"
+            app:supportChangeAnimations="@{false}" />
     </FrameLayout>
 </layout>

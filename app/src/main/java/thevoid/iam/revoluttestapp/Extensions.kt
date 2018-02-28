@@ -1,14 +1,19 @@
 package thevoid.iam.revoluttestapp
 
+import android.widget.ImageView
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import io.reactivex.disposables.Disposable
-import io.reactivex.internal.disposables.ListCompositeDisposable
 import thevoid.iam.revoluttestapp.data.model.CurrencyCode
+import thevoid.iam.revoluttestapp.databinding.GlideApp
+import thevoid.iam.revoluttestapp.widget.CodePlaceholder
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.*
 
-/**
- * Created by alese_000 on 21.02.2018.
- */
+
+// Base
+
 fun String.toDate(pattern: String): Date {
     return SimpleDateFormat(pattern, Locale.getDefault()).parse(this)
 }
@@ -25,36 +30,25 @@ fun Float.removeZeroesString(precision: Int? = null): String {
         String.format("%s", value)
 }
 
+
+
+// List
 fun <T> List<T>.isFirst(item: T): Boolean {
     return this.indexOf(item) == 0
 }
 
-// RX
 
-fun isSubscribed(disposable: Disposable?) = disposable != null && !disposable.isDisposed
-
-fun addDisposable(vararg subscriptions: Disposable): ListCompositeDisposable {
-    val list = ListCompositeDisposable()
-    if (subscriptions.isNotEmpty()) {
-        for (subscription in subscriptions) {
-            list.add(subscription)
-        }
-    }
-    return list
+// Image View
+fun ImageView.setCurrencyCode(currencyCode: CurrencyCode) {
+    val placeholder = CodePlaceholder(context, currencyCode)
+    GlideApp.with(context)
+            .load("http://s.xe.com/themes/xe/images/flags/big/${currencyCode.toLowerCase()}.png")
+            .placeholder(placeholder)
+            .error(placeholder)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .into(this)
 }
 
-fun dispose(disposable: Disposable?) {
-    disposable?.dispose()
-}
-
-fun dispose(disposable: Disposable?, vararg disposables: Disposable?) {
-    disposable?.dispose()
-    disposables.forEach { it?.dispose() }
-}
-
-fun <T> List<T>?.isLast(item: T): Boolean {
-    return this?.indexOf(item) == (if (this == null) -1 else this.size - 1)
-}
 
 fun CurrencyCode.fullname(): String {
     return when (this) {

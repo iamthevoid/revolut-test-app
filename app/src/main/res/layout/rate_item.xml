@@ -10,14 +10,6 @@
             type="android.databinding.ObservableFloat" />
 
         <variable
-            name="needRequestFocus"
-            type="android.databinding.ObservableBoolean" />
-
-        <variable
-            name="isBaseRate"
-            type="boolean" />
-
-        <variable
             name="rate"
             type="thevoid.iam.revoluttestapp.data.model.CurrencyRate" />
 
@@ -72,11 +64,10 @@
             android:hint="0"
             android:inputType="numberDecimal"
             android:minWidth="32dp"
+            android:focusableInTouchMode="true"
             android:textColor="@color/text_color"
             android:textColorHint="@color/hint_color"
-            app:editable="@{isBaseRate}"
             app:floatValue="@{rate.rate * nominal}"
-            app:focusOnClick="@{isBaseRate &amp;&amp; needRequestFocus}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
