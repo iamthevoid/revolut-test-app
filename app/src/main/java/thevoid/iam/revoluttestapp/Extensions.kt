@@ -1,11 +1,8 @@
 package thevoid.iam.revoluttestapp
 
-import android.support.v7.util.SortedList
 import io.reactivex.disposables.Disposable
 import io.reactivex.internal.disposables.ListCompositeDisposable
-import me.tatarka.bindingcollectionadapter2.collections.DiffObservableList
 import thevoid.iam.revoluttestapp.data.model.CurrencyCode
-import thevoid.iam.revoluttestapp.databinding.viewmodel.CurrencyNominal
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -18,6 +15,18 @@ fun String.toDate(pattern: String): Date {
 
 fun Date.toApiString(pattern: String): String {
     return SimpleDateFormat(pattern, Locale.getDefault()).format(this)
+}
+
+fun Float.removeZeroesString(precision: Int? = null): String {
+    val value = if (precision == null) this else setPrecision(this, precision)
+    return if (value == value.toLong().toFloat())
+        String.format("%d", value.toLong());
+    else
+        String.format("%s", value)
+}
+
+fun <T> List<T>.isFirst(item: T): Boolean {
+    return this.indexOf(item) == 0
 }
 
 // RX

@@ -23,7 +23,7 @@ abstract class DataBindingActivity<out VM : ViewModel, Binding : android.databin
         viewModel = getViewModel()
         binding = DataBindingUtil.setContentView(this, getLayout())
         binding.setVariable(getVariable(), viewModel)
-        viewModel.onCreate()
+        viewModel.onCreate(savedInstanceState)
     }
 
     override fun onResume() {
@@ -49,5 +49,10 @@ abstract class DataBindingActivity<out VM : ViewModel, Binding : android.databin
     override fun onDestroy() {
         super.onDestroy()
         viewModel.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        viewModel.onSaveInstantState(outState)
     }
 }

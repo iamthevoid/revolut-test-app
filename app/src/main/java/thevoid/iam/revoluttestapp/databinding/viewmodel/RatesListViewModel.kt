@@ -1,9 +1,7 @@
 package thevoid.iam.revoluttestapp.databinding.viewmodel
 
-import android.databinding.ObservableArrayList
-import android.databinding.ObservableField
-import android.databinding.ObservableFloat
-import android.databinding.ObservableList
+import android.databinding.*
+import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.jakewharton.rxrelay2.BehaviorRelay
@@ -25,94 +23,131 @@ import java.util.concurrent.TimeUnit
  */
 class RatesListViewModel : ViewModel() {
 
+    private val NOMINAL_EXTRA = "NOMINAL_EXTRA"
+    private val CODE_EXTRA = "CODE_EXTRA"
+
     private var ratesDisposable: Disposable? = null
     private var editValueDisposable: Disposable? = null
 
-    var items: DiffObservableList<CurrencyNominal> = DiffObservableList<CurrencyNominal>(diffCallback())
+    /**
+     * Default values for init base nominal
+     */
 
-    var headRate: ObservableList<CurrencyRate> = ObservableArrayList()
+    private var nominal = ObservableFloat(100F)
 
-    var list: MergeObservableList<Any> = MergeObservableList()
+    private var baseRate = ObservableField(CurrencyRate("EUR", 1F))
 
-    private var currency: ObservableField<CurrencyRate> = ObservableField(CurrencyRate("EUR", 1F))
+    private var needRequestFocus = ObservableBoolean(false)
 
-    private var nominal: ObservableFloat = ObservableFloat(100F)
+    /**
+     * BehaviourRelay for observe text editing.
+     */
 
     private var valueRelay: BehaviorRelay<Float> = BehaviorRelay.create()
+
+    /**
+     * Using MergeObservableList for handle items replacements. It filled with two lists,
+     * first - single element list - it will be replaced on each click
+     * second - for other rates.
+     */
+
+    var list = MergeObservableList<CurrencyRate>()
+
+    private var items: DiffObservableList<CurrencyRate> = DiffObservableList<CurrencyRate>(diffCallback())
+
+    private var headRate: ObservableList<CurrencyRate> = ObservableArrayList()
+
+    /**
+     * fill list in constructor
+     */
 
     init {
         list.insertList(headRate)
                 .insertList(items)
     }
 
-    val itemBinding: OnItemBindClass<Any> = OnItemBindClass<Any>()
-            .map(CurrencyNominal::class.java) { itemBinding, _, item ->
-                itemBinding?.set(BR.item, R.layout.nominal_item)?.bindExtra(BR.dividerVisible, !items.isLast(item))
-            }
-            .map(CurrencyRate::class.java) { itemBinding, _, _ ->
-                itemBinding?.set(BR.rate, R.layout.rate_item)?.bindExtra(BR.nominal, nominal)?.bindExtra(BR.relay, valueRelay)
-            }
+    /**
+     * Variables binds for each item in recycler
+     */
 
-    val focusChange = View.OnFocusChangeListener { v, hasFocus -> }
-
-    override fun initialize() {
-        if (isSubscribed(ratesDisposable)) return
-        headRate.add(currency.get())
-        subscribeRates()
-        editValueDisposable = valueRelay.subscribe {
-            items.forEach { currencyNominal: CurrencyNominal? ->
-                currencyNominal?.baseNominal = it
+    val itemBinding: OnItemBindClass<CurrencyRate> = OnItemBindClass<CurrencyRate>()
+            .map(CurrencyRate::class.java) { itemBinding, position, item ->
+                itemBinding?.set(BR.rate, if (position == 0) R.layout.rate_item else R.layout.rate_item_text)?.bindExtra(BR.nominal, nominal)?.bindExtra(BR.relay, valueRelay)?.bindExtra(BR.needRequestFocus, needRequestFocus)?.bindExtra(BR.isBaseRate, list.isFirst(item))
             }
-        }
-    }
 
     private fun subscribeRates() {
         dispose(ratesDisposable)
         ratesDisposable = Observable.interval(0, 1, TimeUnit.MINUTES)
-                .flatMap { Observable.defer({ Api.get().latest(currency.get().code) }) }
+                .flatMap { Observable.defer({ Api.get().latest(baseRate.get().code) }) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map { it.rates }
-                .map { it.map { currencyRate -> CurrencyNominal(currencyRate, nominal.get()) } }
-                .subscribe { items.update(it.sortedBy { it.rate.code }) }
+                .subscribe { items.update(it.sortedBy { it.code }) }
+    }
+
+    override fun initialize() {
+        if (isSubscribed(ratesDisposable)) return
+        headRate.add(baseRate.get())
+        subscribeRates()
+        editValueDisposable = valueRelay.subscribe {
+            nominal.set(it)
+        }
     }
 
     override fun deinitialize() {
         dispose(ratesDisposable, editValueDisposable)
     }
 
-    var onRateClick = object : ItemClickSupport.OnItemClick<Any> {
-        override fun onItemClicked(recyclerView: RecyclerView, itemView: View, position: Int, item: Any) {
-            if (item is CurrencyNominal) {
-                val oldHeadRate = headRate[0]
-                currency.set(item.rate)
-                nominal.set(item.baseNominal * item.rate.rate)
-                val newItems = makeNewList(item, oldHeadRate)
-                recalculateRates(newItems, item)
-                replaceBaseItem(item)
-                items.update(newItems.sortedBy { it.rate.code })
-                subscribeRates()
-            }
+    override fun saveState(bundle: Bundle) {
+        bundle.putFloat(NOMINAL_EXTRA, nominal.get())
+        bundle.putString(CODE_EXTRA, baseRate.get().code)
+    }
+
+    override fun restoreState(savedInstantState: Bundle) {
+        nominal.set(savedInstantState.getFloat(NOMINAL_EXTRA))
+        baseRate.set(CurrencyRate(savedInstantState.getString(CODE_EXTRA), 1F))
+    }
+
+
+    var onRateClick = object : ItemClickSupport.OnItemClick<CurrencyRate> {
+        override fun onItemClicked(recyclerView: RecyclerView, itemView: View, position: Int, item: CurrencyRate) {
+            selectItem(position, item)
         }
     }
 
-    private fun replaceBaseItem(item: CurrencyNominal) {
-        item.rate.rate = 1F
-        headRate[0] = item.rate
+    /**
+     * On item selecting we must swap list before new data will be loaded.
+     */
+    private fun selectItem(position: Int, item: CurrencyRate) {
+        if (position != 0) {
+            val oldHeadRate = headRate[0]
+            baseRate.set(item)
+            nominal.set(nominal.get() * item.rate)
+            val newItems = makeNewList(item, oldHeadRate)
+            recalculateRates(newItems, item)
+            replaceBaseItem(item)
+            items.update(newItems.sortedBy { it.code })
+            needRequestFocus.set(true)
+            subscribeRates()
+        }
     }
 
-    private fun recalculateRates(newItems: MutableList<CurrencyNominal>, item: CurrencyNominal) {
+    private fun replaceBaseItem(item: CurrencyRate) {
+        item.rate = 1F
+        headRate[0] = item
+    }
+
+    private fun recalculateRates(newItems: MutableList<CurrencyRate>, item: CurrencyRate) {
         newItems.forEach {
-            it.rate.rate /= item.rate.rate
-            it.baseNominal = item.baseNominal
+            it.rate /= item.rate
         }
     }
 
-    private fun makeNewList(item: CurrencyNominal, oldBase: CurrencyRate): MutableList<CurrencyNominal> {
-        val newItems = mutableListOf<CurrencyNominal>()
+    private fun makeNewList(item: CurrencyRate, oldBase: CurrencyRate): MutableList<CurrencyRate> {
+        val newItems = mutableListOf<CurrencyRate>()
         newItems.addAll(items)
         newItems.remove(item)
-        newItems.add(CurrencyNominal(oldBase, nominal.get()))
+        newItems.add(oldBase)
         return newItems
     }
 }

@@ -10,12 +10,20 @@
             type="android.databinding.ObservableFloat" />
 
         <variable
+            name="needRequestFocus"
+            type="android.databinding.ObservableBoolean" />
+
+        <variable
+            name="isBaseRate"
+            type="boolean" />
+
+        <variable
             name="rate"
             type="thevoid.iam.revoluttestapp.data.model.CurrencyRate" />
 
         <variable
             name="relay"
-            type="com.jakewharton.rxrelay2.BehaviorRelay&lt;Float&gt;"/>
+            type="com.jakewharton.rxrelay2.BehaviorRelay&lt;Float&gt;" />
     </data>
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -55,29 +63,33 @@
             app:layout_constraintStart_toEndOf="@id/image"
             tools:text="Euro" />
 
-        <EditText
+        <thevoid.iam.revoluttestapp.widget.TextField
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:hint="0"
-            android:minWidth="32dp"
+            android:enabled="true"
             android:gravity="end"
-            app:onChange="@{relay}"
+            android:hint="0"
             android:inputType="numberDecimal"
+            android:minWidth="32dp"
             android:textColor="@color/text_color"
             android:textColorHint="@color/hint_color"
-            android:text="@{String.valueOf(nominal)}"
+            app:editable="@{isBaseRate}"
+            app:floatValue="@{rate.rate * nominal}"
+            app:focusOnClick="@{isBaseRate &amp;&amp; needRequestFocus}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:onChange="@{relay}"
+            app:precision="@{2}" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            app:layout_constraintStart_toEndOf="@id/image"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@color/divider_color"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:background="@color/divider_color"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/image" />
 
     </android.support.constraint.ConstraintLayout>
 </layout>

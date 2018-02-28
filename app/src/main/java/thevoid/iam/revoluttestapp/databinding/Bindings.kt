@@ -7,14 +7,14 @@ import android.support.v7.widget.SimpleItemAnimator
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.jakewharton.rxrelay2.BehaviorRelay
 import me.tatarka.bindingcollectionadapter2.BindingCollectionAdapter
 import thevoid.iam.revoluttestapp.R
-import java.text.ParseException
+import thevoid.iam.revoluttestapp.removeZeroesString
+import thevoid.iam.revoluttestapp.widget.TextField
 
 
 @BindingAdapter("visibile", "type", requireAll = false)
@@ -26,17 +26,41 @@ fun setVisibility(view: View, boolean: Boolean, type: Int) {
     }
 }
 
+@BindingAdapter("floatValue", "precision", requireAll = false)
+fun setTextViewText(view: TextView, float: Float, precision: Int?) {
+    view.text = float.removeZeroesString(precision)
+}
+
+
+@BindingAdapter("floatValue", "precision", requireAll = false)
+fun setFieldText(view: TextField, float: Float, precision: Int?) {
+    view.setText(float.removeZeroesString(precision))
+}
+
+
+@BindingAdapter("focusOnClick")
+fun setFocusOnClick(view: TextField, requestFocus: Boolean) {
+    if (requestFocus) {
+        view.requestFocusFromTouch()
+        view.setSelection(view.text.length)
+    }
+}
+
+@BindingAdapter("editable")
+fun setEditable(view: TextField, editable: Boolean) {
+    view.isFocusable = editable
+    view.isFocusableInTouchMode = editable
+}
+
 @BindingAdapter("onChange")
-fun onChange(view: EditText, relay: BehaviorRelay<Float>) {
+fun onChange(view: TextField, relay: BehaviorRelay<Float>) {
     view.addTextChangedListener(object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
-            var value: Float
-            try {
-                value = s.toString().toFloat()
-            } catch (e: ParseException) {
-                value = 0F
-            }
-            relay.accept(value)
+            relay.accept(try {
+                s.toString().toFloat()
+            } catch (e: NumberFormatException) {
+                0F
+            })
         }
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -48,7 +72,6 @@ fun onChange(view: EditText, relay: BehaviorRelay<Float>) {
         }
     })
 }
-
 
 @BindingAdapter("flag")
 fun setFlag(imageView: ImageView, currencyCode: String) {
