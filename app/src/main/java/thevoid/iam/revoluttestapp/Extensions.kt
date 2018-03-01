@@ -2,12 +2,8 @@ package thevoid.iam.revoluttestapp
 
 import android.widget.ImageView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import io.reactivex.disposables.Disposable
-import thevoid.iam.revoluttestapp.data.model.CurrencyCode
-import thevoid.iam.revoluttestapp.databinding.GlideApp
 import thevoid.iam.revoluttestapp.widget.CodePlaceholder
-import java.math.BigDecimal
-import java.math.RoundingMode
+import thevoid.iam.revoluttestapp.widget.GlideApp
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -39,8 +35,9 @@ fun <T> List<T>.isFirst(item: T): Boolean {
 
 
 // Image View
-fun ImageView.setCurrencyCode(currencyCode: CurrencyCode) {
+fun ImageView.setCurrencyCode(currencyCode: String) {
     val placeholder = CodePlaceholder(context, currencyCode)
+    // Use custom service to fetch flag icon by currency code
     GlideApp.with(context)
             .load("http://s.xe.com/themes/xe/images/flags/big/${currencyCode.toLowerCase()}.png")
             .placeholder(placeholder)
@@ -50,7 +47,7 @@ fun ImageView.setCurrencyCode(currencyCode: CurrencyCode) {
 }
 
 
-fun CurrencyCode.fullname(): String {
+fun String.fullname(): String {
     return when (this) {
         "AED" -> "United Arab Emirates Dirham"
         "AFN" -> "Afghanistan Afghani"

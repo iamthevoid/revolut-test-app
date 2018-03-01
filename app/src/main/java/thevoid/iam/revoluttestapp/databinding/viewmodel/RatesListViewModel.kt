@@ -71,18 +71,40 @@ class RatesListViewModel : ViewModel() {
 
     val itemBinding: OnItemBindClass<CurrencyRate> = OnItemBindClass<CurrencyRate>()
             .map(CurrencyRate::class.java) { itemBinding, position, item ->
-                itemBinding?.set(BR.rate, if (position == 0) R.layout.rate_item else R.layout.rate_item_text)?.bindExtra(BR.nominal, nominal)?.bindExtra(BR.relay, valueRelay)?.bindExtra(BR.isBaseRate, list.isFirst(item))
+                itemBinding?.set(BR.rate, if (position == 0) R.layout.rate_item else R.layout.rate_item_text)?.
+                        bindExtra(BR.nominal, nominal)?.
+                        bindExtra(BR.relay, valueRelay)?.
+                        bindExtra(BR.isBaseRate, list.isFirst(item))
             }
 
     private fun subscribeRates() {
         dispose(ratesDisposable)
-        ratesDisposable = Observable.interval(0, 1, TimeUnit.SECONDS)
-                .flatMap { Observable.defer({ Api.get().latest(baseRate.get().code) }) }
+        ratesDisposable = Observable.defer({ Api.get().latest(baseRate.get().code) })
+                .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map { it.rates }
                 .subscribe { items.update(it.sortedBy { it.code }) }
     }
+
+    /**
+     * On rate click recycler view scroll to top for let editable item place in focus
+     *
+     * 15 is a magic number. Can be each other for regulate scroll speed. Animation duration always
+     * the same and we can speed up scroll by increasing scroll distance
+     */
+
+    var onRateClick = object : ItemClickSupport.OnItemClick<CurrencyRate> {
+        override fun onItemClicked(recyclerView: RecyclerView, itemView: View, position: Int, item: CurrencyRate) {
+            selectItem(position, item)
+            recyclerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+            recyclerView.smoothScrollBy(0, -recyclerView.measuredHeight * 15, LinearInterpolator())
+        }
+    }
+
+    /**
+     * Lifecycle methods
+     */
 
     override fun initialize() {
         if (isSubscribed(ratesDisposable)) return
@@ -107,47 +129,54 @@ class RatesListViewModel : ViewModel() {
         baseRate.set(CurrencyRate(savedInstantState.getString(EXTRA_CODE, DEFAULT_CODE), DEFAULT_RATE))
     }
 
-
-    var onRateClick = object : ItemClickSupport.OnItemClick<CurrencyRate> {
-        override fun onItemClicked(recyclerView: RecyclerView, itemView: View, position: Int, item: CurrencyRate) {
-            selectItem(position, item)
-            recyclerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-            recyclerView.smoothScrollBy(0, -recyclerView.measuredHeight * 15, LinearInterpolator())
-        }
-    }
-
     /**
      * On item selecting we must swap list before new data will be loaded.
      */
     private fun selectItem(position: Int, item: CurrencyRate) {
         if (position != 0) {
+
+            // storing current base rate in temp var
             val oldHeadRate = headRate[0]
-            baseRate.set(item)
-            nominal.set(nominal.get() * item.rate)
-            val newItems = makeNewList(item, oldHeadRate)
-            recalculateRates(newItems, item)
+
+            // New list based on old, but old base rate inserts in list, and new base rate
+            // removing from list
+            updateList(item, oldHeadRate)
+
+            // setting selected item as base rate
             replaceBaseItem(item)
-            items.update(newItems.sortedBy { it.code })
+
+            // after all unsubscribe from current Api subscription and resubscribe on it with new
+            // base rate
             subscribeRates()
         }
     }
 
     private fun replaceBaseItem(item: CurrencyRate) {
+        // setting nominal as multiplying current nominal and selected item rate
+        // It let us use multiplier "1" for this rate for recalculating it for other
+        nominal.set(nominal.get() * item.rate)
+
+        // New base rate becomes "1"
         item.rate = DEFAULT_RATE
+
+        baseRate.set(item)
+
+        // Replace CurrencyRate in headRates "singleton" list
         headRate[0] = item
     }
 
-    private fun recalculateRates(newItems: MutableList<CurrencyRate>, item: CurrencyRate) {
-        newItems.forEach {
-            it.rate /= item.rate
-        }
-    }
 
-    private fun makeNewList(item: CurrencyRate, oldBase: CurrencyRate): MutableList<CurrencyRate> {
+    private fun updateList(item: CurrencyRate, oldBase: CurrencyRate) {
         val newItems = mutableListOf<CurrencyRate>()
         newItems.addAll(items)
         newItems.remove(item)
         newItems.add(oldBase)
-        return newItems
+
+        // Recalculate rates
+        newItems.forEach { it.rate /= item.rate }
+
+        // Update in Diff Observable List create insertion animation because sort order always the
+        // and DiffCallback is the guarantee of new item will be animated inserted at correct position
+        items.update(newItems.sortedBy { it.code })
     }
 }

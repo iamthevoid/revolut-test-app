@@ -12,11 +12,17 @@ import android.widget.TextView
 import com.jakewharton.rxrelay2.BehaviorRelay
 import me.tatarka.bindingcollectionadapter2.BindingCollectionAdapter
 import thevoid.iam.revoluttestapp.R
-import thevoid.iam.revoluttestapp.data.model.CurrencyCode
 import thevoid.iam.revoluttestapp.removeZeroesString
 import thevoid.iam.revoluttestapp.setCurrencyCode
 import thevoid.iam.revoluttestapp.widget.TextField
 
+/**
+ * Binding methods for views
+ */
+
+/**
+ * ==== VIEW =====
+ */
 
 @BindingAdapter("visibile", "type", requireAll = false)
 fun setVisibility(view: View, boolean: Boolean, type: Int) {
@@ -27,10 +33,20 @@ fun setVisibility(view: View, boolean: Boolean, type: Int) {
     }
 }
 
+/**
+* ==== TEXT VIEW =====
+*/
+
+
 @BindingAdapter("floatValue", "precision", requireAll = false)
 fun setTextViewText(view: TextView, float: Float, precision: Int?) {
     view.text = float.removeZeroesString(precision)
 }
+
+/**
+* ==== TEXT FIELD =====
+*/
+
 
 
 @BindingAdapter("floatValue", "precision", requireAll = false)
@@ -65,16 +81,27 @@ fun onChange(view: TextField, relay: BehaviorRelay<Float>) {
     })
 }
 
+/**
+* ==== IMAGE VIEW =====
+*/
+
+// Call glide for each Currency Code and load flag image from remote or use placeholder
+// if image not found
 @BindingAdapter("flag")
-fun setFlag(imageView: ImageView, currencyCode: CurrencyCode) {
+fun setFlag(imageView: ImageView, currencyCode: String) {
     imageView.setCurrencyCode(currencyCode)
 }
+
+/**
+ * ===== RECYCLER VIEW ====
+ */
 
 @BindingAdapter("itemClick")
 fun <T> setItemClickListener(view: RecyclerView, listener: ItemClickSupport.OnItemClick<T>) {
     ItemClickSupport.addTo(view).setOnItemClickListener(itemClick(listener))
 }
 
+// Disables "blinking" on notify data set changed
 @BindingAdapter("supportChangeAnimations")
 fun setSupportChangeAnimations(view: RecyclerView, support: Boolean) {
     val itemAnimator = view.itemAnimator
@@ -104,6 +131,10 @@ class ItemClickSupport private constructor(private val mRecyclerView: RecyclerVi
             mOnItemClickListener!!.onItemClicked(mRecyclerView, v, holder.adapterPosition)
         }
     }
+
+    /**
+     *  Use attach listener for set onClickListener for each item in recycler
+     */
     private val mAttachListener = object : RecyclerView.OnChildAttachStateChangeListener {
         override fun onChildViewAttachedToWindow(view: View) {
             if (mOnItemClickListener != null) {
@@ -117,6 +148,7 @@ class ItemClickSupport private constructor(private val mRecyclerView: RecyclerVi
     }
 
     init {
+        // pass Item Click support as tag
         mRecyclerView.setTag(R.id.item_click_support, this)
         mRecyclerView.addOnChildAttachStateChangeListener(mAttachListener)
     }
@@ -134,23 +166,20 @@ class ItemClickSupport private constructor(private val mRecyclerView: RecyclerVi
         return this
     }
 
+    /**
+     * After setting listener refresh all items in recycler and call "attachListener" for each
+     */
     private fun refreshAllChildren() {
         (0 until mRecyclerView.childCount)
                 .map { mRecyclerView.getChildAt(it) }
                 .forEach { mAttachListener.onChildViewAttachedToWindow(it) }
     }
 
-    private fun detach(view: RecyclerView) {
-        view.removeOnChildAttachStateChangeListener(mAttachListener)
-        view.setTag(R.id.item_click_support, null)
-    }
-
     interface OnItemClickListener {
-
         fun onItemClicked(recyclerView: RecyclerView, itemView: View, position: Int)
     }
 
-    interface OnItemClick<T> {
+    interface OnItemClick<in T> {
         fun onItemClicked(recyclerView: RecyclerView, itemView: View, position: Int, item: T)
     }
 
@@ -161,12 +190,6 @@ class ItemClickSupport private constructor(private val mRecyclerView: RecyclerVi
             if (support == null) {
                 support = ItemClickSupport(view)
             }
-            return support
-        }
-
-        fun removeFrom(view: RecyclerView): ItemClickSupport? {
-            val support = view.getTag(R.id.item_click_support) as ItemClickSupport
-            support.detach(view)
             return support
         }
     }

@@ -1,5 +1,6 @@
 package thevoid.iam.revoluttestapp
 
+// Extras for saving state
 const val EXTRA_NOMINAL = "thevoid.iam.revoluttestapp.EXTRA_NOMINAL"
 const val EXTRA_CODE = "thevoid.iam.revoluttestapp.EXTRA_CODE"
 

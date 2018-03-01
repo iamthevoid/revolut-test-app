@@ -11,6 +11,10 @@ import kotlin.collections.ArrayList
 /**
  * Created by alese_000 on 21.02.2018.
  */
+
+/**
+ * Using list of rates more convenient than Map of Key-Values pairs.
+ */
 class RatesAdapter : TypeAdapter<List<CurrencyRate>>() {
 
     @Throws(IOException::class)
@@ -19,6 +23,8 @@ class RatesAdapter : TypeAdapter<List<CurrencyRate>>() {
             out.nullValue()
             return
         }
+
+        // TODO implement convert back to map if need
         out.value(value.toString())
     }
 

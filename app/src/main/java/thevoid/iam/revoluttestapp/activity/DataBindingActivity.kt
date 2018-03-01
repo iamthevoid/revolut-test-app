@@ -9,7 +9,15 @@ import thevoid.iam.revoluttestapp.databinding.viewmodel.ViewModel
 /**
  * Created by alese_000 on 23.02.2018.
  */
-abstract class DataBindingActivity<out VM : ViewModel, Binding : android.databinding.ViewDataBinding> : AppCompatActivity(){
+
+/**
+ * DataBindingActivity has abstract methods for setting ViewModel, layout and variable id
+ * for view model.
+ *
+ * View model creates in onCreate and then each lifecycle method of ViewModel calls in same
+ * lifecycle methods of activity
+ */
+abstract class DataBindingActivity<VM : ViewModel, Binding : android.databinding.ViewDataBinding> : AppCompatActivity(){
 
     abstract fun getViewModel() : VM
     abstract fun getLayout() : Int

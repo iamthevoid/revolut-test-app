@@ -20,6 +20,10 @@ class TextField @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         textWatcher = watcher
     }
 
+    /**
+     * setText calls "afterTextChanged" in TextWatcher, than we must disable Watcher before it
+     * and enable after, for prevent recursion.
+     */
     fun setText(text: String?) {
         disableWatcher()
         super.setText(text)
@@ -28,13 +32,13 @@ class TextField @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         enableWatcher()
     }
 
-    fun disableWatcher() {
+    private fun disableWatcher() {
         if (textWatcher != null) {
             super.removeTextChangedListener(textWatcher)
         }
     }
 
-    fun enableWatcher() {
+    private fun enableWatcher() {
         if (textWatcher != null) {
             super.addTextChangedListener(textWatcher)
         }

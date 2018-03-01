@@ -8,6 +8,8 @@ import java.util.*
 /**
  * Created by alese_000 on 21.02.2018.
  */
+
+// Model for parse response
 data class RatesResponse(@JsonAdapter(StringDateAdapter::class)
                          val date: Date,
                          val base : String,

@@ -11,6 +11,14 @@ import thevoid.iam.revoluttestapp.R
  */
 class CodePlaceholder constructor(context : Context, private val currencyCode: String) : Drawable() {
 
+
+    /**
+     * Used "rainbow" palette for empty placeholders. If color depends on any constant value, that
+     * depends on string(as example we can convert hashcode into hex and cut unwanted digits), but
+     * it produce unwanted and non beautiful colors (black, brown, lime and each other), than
+     * we can also use hashcode, non as it is, but using reminder of dividing it by pallette array
+     * length. It let us use that reminder as index of this array and take wanted colors.
+     */
     private val palette = arrayOf(
             R.color.rainbow_red,
             R.color.rainbow_orange,
@@ -45,7 +53,7 @@ class CodePlaceholder constructor(context : Context, private val currencyCode: S
     }
 
     private fun getColor(context: Context, currencyCode: String): Int {
-        return ContextCompat.getColor(context, palette[Math.abs(currencyCode.hashCode() % 7)])
+        return ContextCompat.getColor(context, palette[Math.abs(currencyCode.hashCode() % palette.size)])
     }
 
     override fun draw(canvas: Canvas) {
