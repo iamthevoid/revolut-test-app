@@ -36,16 +36,21 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
+    // support-v4 and animated-vector-drawable not uses directly, but
+    // appcompat-v7 and recyclerview-v7 has they in dependencies, but older versions. Than
+    // we must declare it implicitly for newer versions automatically uses in appcompat and recycler
     implementation "com.android.support:support-v4:$support"
-    implementation "com.android.support:appcompat-v7:$support"
     implementation "com.android.support:animated-vector-drawable:$support"
+    implementation "com.android.support:appcompat-v7:$support"
     implementation "com.android.support:recyclerview-v7:$support"
 
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
     implementation "com.squareup.retrofit2:converter-gson:2.3.0"
     implementation "com.squareup.okhttp3:okhttp:3.9.1"
     implementation "com.squareup.okhttp3:logging-interceptor:3.9.1"
+
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.1.0'
 
