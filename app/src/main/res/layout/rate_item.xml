@@ -24,9 +24,8 @@
         android:layout_height="wrap_content">
 
         <ImageView
+            style="@style/avatar"
             android:id="@+id/image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
             android:layout_margin="16dp"
             app:flag="@{rate.code}"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -35,27 +34,27 @@
             tools:src="@mipmap/ic_launcher" />
 
         <TextView
+            style="@style/title_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:text="@{rate.code}"
-            android:textColor="@color/text_color"
-            android:textSize="16sp"
             app:layout_constraintStart_toEndOf="@id/image"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="EUR" />
 
         <TextView
+            style="@style/subtitle_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:text="@{ExtensionsKt.fullname(rate.code)}"
-            android:textColor="@color/hint_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/image"
             tools:text="Euro" />
 
         <thevoid.iam.revoluttestapp.widget.TextField
+            style="@style/text_field"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
@@ -65,8 +64,6 @@
             android:inputType="numberDecimal"
             android:minWidth="32dp"
             android:focusableInTouchMode="true"
-            android:textColor="@color/text_color"
-            android:textColorHint="@color/hint_color"
             app:floatValue="@{rate.rate * nominal}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -25,9 +25,7 @@ class StringDateAdapter : TypeAdapter<Date>() {
             return null
         }
 
-        val nextString = `in`?.nextString()
-        val toDate = nextString?.toDate(datePattern)
-        return toDate
+        return `in`?.nextString()?.toDate(datePattern)
     }
 
     override fun write(out: JsonWriter?, value: Date?) {
@@ -35,7 +33,6 @@ class StringDateAdapter : TypeAdapter<Date>() {
             out?.nullValue()
             return
         }
-        val toApiString = value.toApiString(datePattern)
-        out?.value(toApiString)
+        out?.value(value.toApiString(datePattern))
     }
 }

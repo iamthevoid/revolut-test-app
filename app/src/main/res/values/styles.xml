@@ -8,4 +8,23 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+
+    <style name="avatar">
+        <item name="android:layout_width">@dimen/image_size</item>
+        <item name="android:layout_height">@dimen/image_size</item>
+    </style>
+    <style name="title_text">
+        <item name="android:textColor">@color/text_color</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">@dimen/text_large</item>
+    </style>
+    <style name="text_field">
+        <item name="android:textColor">@color/text_color</item>
+        <item name="android:textColorHint">@color/hint_color</item>
+        <item name="android:textSize">@dimen/text_large</item>
+    </style>
+    <style name="subtitle_text">
+        <item name="android:textColor">@color/hint_color</item>
+        <item name="android:textSize">@dimen/text_regular</item>
+    </style>
 </resources>

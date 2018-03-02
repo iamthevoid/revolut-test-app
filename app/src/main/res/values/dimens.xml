@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="image_size">40dp</dimen>
+
+    <dimen name="text_large">16sp</dimen>
+    <dimen name="text_regular">14sp</dimen>
+
+</resources>

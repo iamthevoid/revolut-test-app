@@ -17,6 +17,9 @@ import kotlin.collections.ArrayList
  */
 class RatesAdapter : TypeAdapter<List<CurrencyRate>>() {
 
+    /**
+     * This adapter always used to red value, but never to write it.
+     */
     @Throws(IOException::class)
     override fun write(out: JsonWriter, value: List<CurrencyRate>?) {
         if (value == null) {

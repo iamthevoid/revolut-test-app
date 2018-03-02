@@ -29,24 +29,25 @@ class CodePlaceholder constructor(context : Context, private val currencyCode: S
             R.color.rainbow_purple
     )
 
+    private val textColor = R.color.text_white
+
     private val TEXT_PERCENT = 0.35F
 
-    private val textPaint: Paint = Paint()
-    private val backgroundPaint: Paint
+    private val textPaint = Paint()
+    private val backgroundPaint = Paint()
     private var placeholderBounds: RectF? = null
 
-    private var textStartXPoint: Float = 0F
-    private var textStartYPoint: Float = 0f
+    private var textStartXPoint = 0F
+    private var textStartYPoint = 0F
 
     private var width = -1
     private var height = -1
 
     init {
         textPaint.isAntiAlias = true
-        textPaint.color = Color.parseColor("#fafafa")
+        textPaint.color = ContextCompat.getColor(context, textColor)
         textPaint.isFakeBoldText = true
 
-        backgroundPaint = Paint()
         backgroundPaint.isAntiAlias = true
         backgroundPaint.style = Paint.Style.FILL
         backgroundPaint.color = getColor(context, currencyCode)
