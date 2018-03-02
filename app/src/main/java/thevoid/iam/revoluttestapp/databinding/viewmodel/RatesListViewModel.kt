@@ -34,9 +34,9 @@ class RatesListViewModel : ViewModel() {
      * Default values for init base nominal
      */
 
-    private var nominal = ObservableFloat(DEFAULT_NOMINAL)
+    private var baseRate = CurrencyRate(DEFAULT_CODE, DEFAULT_RATE)
 
-    private var baseRate = ObservableField(CurrencyRate(DEFAULT_CODE, DEFAULT_RATE))
+    private var nominal = ObservableFloat(DEFAULT_NOMINAL)
 
     /**
      * BehaviourRelay for observe text editing.
@@ -79,12 +79,12 @@ class RatesListViewModel : ViewModel() {
 
     private fun subscribeRates() {
         dispose(ratesDisposable)
-        ratesDisposable = Observable.defer({ Api.get().latest(baseRate.get().code) })
+        ratesDisposable = Observable.defer({ Api.get().latest(baseRate.code) })
                 .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map { it.rates }
-                .subscribe { items.update(it.sortedBy { it.code }) }
+                .subscribe { items.update(prepare(it)) }
     }
 
     /**
@@ -108,7 +108,7 @@ class RatesListViewModel : ViewModel() {
 
     override fun initialize() {
         if (isSubscribed(ratesDisposable)) return
-        headRate.add(baseRate.get())
+        headRate.add(baseRate)
         subscribeRates()
         editValueDisposable = valueRelay.subscribe {
             nominal.set(it)
@@ -121,12 +121,12 @@ class RatesListViewModel : ViewModel() {
 
     override fun saveState(bundle: Bundle) {
         bundle.putFloat(EXTRA_NOMINAL, nominal.get())
-        bundle.putString(EXTRA_CODE, baseRate.get().code)
+        bundle.putString(EXTRA_CODE, baseRate.code)
     }
 
     override fun restoreState(savedInstantState: Bundle) {
         nominal.set(savedInstantState.getFloat(EXTRA_NOMINAL, DEFAULT_NOMINAL))
-        baseRate.set(CurrencyRate(savedInstantState.getString(EXTRA_CODE, DEFAULT_CODE), DEFAULT_RATE))
+        baseRate = CurrencyRate(savedInstantState.getString(EXTRA_CODE, DEFAULT_CODE), DEFAULT_RATE)
     }
 
     /**
@@ -159,7 +159,7 @@ class RatesListViewModel : ViewModel() {
         // New base rate becomes "1"
         item.rate = DEFAULT_RATE
 
-        baseRate.set(item)
+        baseRate = item
 
         // Replace CurrencyRate in headRates "singleton" list
         headRate[0] = item
@@ -177,6 +177,8 @@ class RatesListViewModel : ViewModel() {
 
         // Update in Diff Observable List create insertion animation because sort order always the
         // and DiffCallback is the guarantee of new item will be animated inserted at correct position
-        items.update(newItems.sortedBy { it.code })
+        items.update(prepare(newItems))
     }
+
+    private fun prepare(newItems: List<CurrencyRate>) = newItems.sortedBy { it.code }
 }
