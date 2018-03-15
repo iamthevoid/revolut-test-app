@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">RevolutTestApp</string>
+    <string name="error_text">Oops!\n Something went wrong. Check your internet connection or try later.</string>
 </resources>

@@ -7,7 +7,7 @@
 
         <variable
             name="nominal"
-            type="android.databinding.ObservableFloat" />
+            type="android.databinding.ObservableDouble" />
 
         <variable
             name="rate"
@@ -15,7 +15,7 @@
 
         <variable
             name="relay"
-            type="com.jakewharton.rxrelay2.BehaviorRelay&lt;Float&gt;" />
+            type="com.jakewharton.rxrelay2.BehaviorRelay&lt;Double&gt;" />
     </data>
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -60,11 +60,12 @@
             android:layout_margin="16dp"
             android:enabled="true"
             android:gravity="end"
+            android:maxLength="10"
             android:hint="0"
             android:inputType="numberDecimal"
             android:minWidth="32dp"
             android:focusableInTouchMode="true"
-            app:floatValue="@{rate.rate * nominal}"
+            app:doubleValue="@{rate.rate * nominal}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

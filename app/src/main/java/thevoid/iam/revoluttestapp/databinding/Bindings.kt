@@ -38,8 +38,8 @@ fun setVisibility(view: View, boolean: Boolean, type: Int) {
 */
 
 
-@BindingAdapter("floatValue", "precision", requireAll = false)
-fun setTextViewText(view: TextView, float: Float, precision: Int?) {
+@BindingAdapter("doubleValue", "precision", requireAll = false)
+fun setTextViewText(view: TextView, float: Double, precision: Int?) {
     view.text = float.removeZeroesString(precision)
 }
 
@@ -49,8 +49,8 @@ fun setTextViewText(view: TextView, float: Float, precision: Int?) {
 
 
 
-@BindingAdapter("floatValue", "precision", requireAll = false)
-fun setFieldText(view: TextField, float: Float, precision: Int?) {
+@BindingAdapter("doubleValue", "precision", requireAll = false)
+fun setFieldText(view: TextField, float: Double, precision: Int?) {
     view.setText(float.removeZeroesString(precision))
 }
 
@@ -61,13 +61,13 @@ fun setEditable(view: TextField, editable: Boolean) {
 }
 
 @BindingAdapter("onChange")
-fun onChange(view: TextField, relay: BehaviorRelay<Float>) {
+fun onChange(view: TextField, relay: BehaviorRelay<Double>) {
     view.addTextChangedListener(object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
             relay.accept(try {
-                s.toString().toFloat()
+                s.toString().toDouble()
             } catch (e: NumberFormatException) {
-                0F
+                0.toDouble()
             })
         }
 

@@ -1,9 +1,6 @@
 package thevoid.iam.revoluttestapp.databinding.viewmodel
 
-import android.databinding.ObservableArrayList
-import android.databinding.ObservableField
-import android.databinding.ObservableFloat
-import android.databinding.ObservableList
+import android.databinding.*
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -25,10 +22,12 @@ import java.util.concurrent.TimeUnit
 /**
  * Created by alese_000 on 23.02.2018.
  */
-class RatesListViewModel : ViewModel() {
+class RatesListViewModel(internetConnected : Boolean) : ViewModel() {
 
     private var ratesDisposable: Disposable? = null
     private var editValueDisposable: Disposable? = null
+
+    var receivedCorrect: ObservableBoolean = ObservableBoolean(internetConnected)
 
     /**
      * Default values for init base nominal
@@ -36,13 +35,13 @@ class RatesListViewModel : ViewModel() {
 
     private var baseRate = CurrencyRate(DEFAULT_CODE, DEFAULT_RATE)
 
-    private var nominal = ObservableFloat(DEFAULT_NOMINAL)
+    private var nominal = ObservableDouble(DEFAULT_NOMINAL)
 
     /**
      * BehaviourRelay for observe text editing.
      */
 
-    private var valueRelay: BehaviorRelay<Float> = BehaviorRelay.create()
+    private var valueRelay: BehaviorRelay<Double> = BehaviorRelay.create()
 
     /**
      * Using MergeObservableList for handle items replacements. It filled with two lists,
@@ -71,20 +70,22 @@ class RatesListViewModel : ViewModel() {
 
     val itemBinding: OnItemBindClass<CurrencyRate> = OnItemBindClass<CurrencyRate>()
             .map(CurrencyRate::class.java) { itemBinding, position, item ->
-                itemBinding?.set(BR.rate, if (position == 0) R.layout.rate_item else R.layout.rate_item_text)?.
-                        bindExtra(BR.nominal, nominal)?.
-                        bindExtra(BR.relay, valueRelay)?.
-                        bindExtra(BR.isBaseRate, list.isFirst(item))
+                itemBinding?.set(BR.rate, if (position == 0) R.layout.rate_item else R.layout.rate_item_text)?.bindExtra(BR.nominal, nominal)?.bindExtra(BR.relay, valueRelay)?.bindExtra(BR.isBaseRate, list.isFirst(item))
             }
 
     private fun subscribeRates() {
         dispose(ratesDisposable)
         ratesDisposable = Observable.defer({ Api.get().latest(baseRate.code) })
                 .repeatWhen { it.delay(1, TimeUnit.SECONDS) }
+                .doOnError { receivedCorrect.set(false) }
+                .retryWhen { it.delay(1, TimeUnit.SECONDS) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map { it.rates }
-                .subscribe { items.update(prepare(it)) }
+                .subscribe {
+                    items.update(prepare(it))
+                    receivedCorrect.set(true)
+                }
     }
 
     /**
@@ -120,12 +121,12 @@ class RatesListViewModel : ViewModel() {
     }
 
     override fun saveState(bundle: Bundle) {
-        bundle.putFloat(EXTRA_NOMINAL, nominal.get())
+        bundle.putDouble(EXTRA_NOMINAL, nominal.get())
         bundle.putString(EXTRA_CODE, baseRate.code)
     }
 
     override fun restoreState(savedInstantState: Bundle) {
-        nominal.set(savedInstantState.getFloat(EXTRA_NOMINAL, DEFAULT_NOMINAL))
+        nominal.set(savedInstantState.getDouble(EXTRA_NOMINAL, DEFAULT_NOMINAL))
         baseRate = CurrencyRate(savedInstantState.getString(EXTRA_CODE, DEFAULT_CODE), DEFAULT_RATE)
     }
 

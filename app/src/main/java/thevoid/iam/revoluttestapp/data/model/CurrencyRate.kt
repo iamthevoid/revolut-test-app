@@ -10,9 +10,9 @@ import android.databinding.BaseObservable
 /**
  * CurrensyRate extends by BaseObservable. It let us notify changes in list
  */
-class CurrencyRate(val code: String, rate: Float) : BaseObservable() {
+class CurrencyRate(val code: String, rate: Double) : BaseObservable() {
 
-    var rate: Float = rate
+    var rate: Double = rate
         set(value) {
             field = value
             notifyChange()

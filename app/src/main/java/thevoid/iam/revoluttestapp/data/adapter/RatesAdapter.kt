@@ -50,6 +50,6 @@ class RatesAdapter : TypeAdapter<List<CurrencyRate>>() {
     }
 
     private fun readRate(jsonReader: JsonReader): CurrencyRate {
-        return CurrencyRate(jsonReader.nextName(), jsonReader.nextDouble().toFloat())
+        return CurrencyRate(jsonReader.nextName(), jsonReader.nextDouble())
     }
 }

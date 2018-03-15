@@ -18,10 +18,10 @@ fun Date.toApiString(pattern: String): String {
     return SimpleDateFormat(pattern, Locale.getDefault()).format(this)
 }
 
-fun Float.removeZeroesString(precision: Int? = null): String {
+fun Double.removeZeroesString(precision: Int? = null): String {
     val value = if (precision == null) this else setPrecision(this, precision)
-    return if (value == value.toLong().toFloat())
-        String.format("%d", value.toLong());
+    return if (value == value.toLong().toDouble())
+        String.format("%d", value.toLong())
     else
         String.format("%s", value)
 }

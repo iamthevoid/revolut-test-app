@@ -1,5 +1,7 @@
 package thevoid.iam.revoluttestapp.data
 
+import android.content.Context
+import android.net.ConnectivityManager
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -36,9 +38,9 @@ object Api {
         logging.level = HttpLoggingInterceptor.Level.BODY
         return OkHttpClient.Builder()
                 .followSslRedirects(true)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(3, TimeUnit.SECONDS)
+                .writeTimeout(3, TimeUnit.SECONDS)
+                .connectTimeout(3, TimeUnit.SECONDS)
                 .addInterceptor(logging)
                 .build()
     }
@@ -50,5 +52,11 @@ object Api {
                 .addConverterFactory(GsonConverterFactory.create(Gson()))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
+    }
+
+    fun isInternetConnected(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val netInfo = cm.activeNetworkInfo
+        return netInfo != null && netInfo.isConnectedOrConnecting
     }
 }

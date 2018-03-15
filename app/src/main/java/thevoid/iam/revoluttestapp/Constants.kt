@@ -4,6 +4,6 @@ package thevoid.iam.revoluttestapp
 const val EXTRA_NOMINAL = "thevoid.iam.revoluttestapp.EXTRA_NOMINAL"
 const val EXTRA_CODE = "thevoid.iam.revoluttestapp.EXTRA_CODE"
 
-const val DEFAULT_RATE = 1F
+const val DEFAULT_RATE = 1.toDouble()
 const val DEFAULT_CODE = "EUR"
-const val DEFAULT_NOMINAL = 100F
+const val DEFAULT_NOMINAL = 100.toDouble()

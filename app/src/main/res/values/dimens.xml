@@ -3,6 +3,7 @@
 
     <dimen name="image_size">40dp</dimen>
 
+    <dimen name="text_very_large">20sp</dimen>
     <dimen name="text_large">16sp</dimen>
     <dimen name="text_regular">14sp</dimen>
 

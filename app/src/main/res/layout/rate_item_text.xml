@@ -7,7 +7,7 @@
 
         <variable
             name="nominal"
-            type="android.databinding.ObservableFloat" />
+            type="android.databinding.ObservableDouble" />
 
         <variable
             name="needRequestFocus"
@@ -71,7 +71,7 @@
             android:hint="0"
             android:minWidth="32dp"
             android:textColor="@{nominal == 0 ? @color/hint_color : @color/text_color}"
-            app:floatValue="@{rate.rate * nominal}"
+            app:doubleValue="@{rate.rate * nominal}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

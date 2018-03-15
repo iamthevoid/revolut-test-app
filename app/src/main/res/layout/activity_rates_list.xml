@@ -23,8 +23,20 @@
             app:itemBinding="@{vm.itemBinding}"
             app:itemClick="@{vm.onRateClick}"
             app:items="@{vm.list}"
+            app:visibile="@{vm.receivedCorrect}"
             app:layoutManager="@{LayoutManagers.linear()}"
             app:nestedScrollingEnabled="@{false}"
             app:supportChangeAnimations="@{false}" />
+
+        <TextView
+            app:visibile="@{!vm.receivedCorrect}"
+            android:layout_margin="16dp"
+            android:textSize="@dimen/text_very_large"
+            android:gravity="center"
+            android:textColor="@color/hint_color"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/error_text"/>
     </FrameLayout>
 </layout>

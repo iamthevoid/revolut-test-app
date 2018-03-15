@@ -2,6 +2,7 @@ package thevoid.iam.revoluttestapp.activity
 
 import thevoid.iam.revoluttestapp.BR
 import thevoid.iam.revoluttestapp.R
+import thevoid.iam.revoluttestapp.data.Api
 import thevoid.iam.revoluttestapp.databinding.ActivityRatesListBinding
 import thevoid.iam.revoluttestapp.databinding.viewmodel.RatesListViewModel
 
@@ -12,7 +13,7 @@ class MainActivity : DataBindingActivity<RatesListViewModel, ActivityRatesListBi
     }
 
     override fun getViewModel(): RatesListViewModel {
-        return RatesListViewModel()
+        return RatesListViewModel(Api.isInternetConnected(this))
     }
 
     override fun getLayout(): Int {

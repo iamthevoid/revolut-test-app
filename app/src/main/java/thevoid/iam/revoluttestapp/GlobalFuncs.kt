@@ -25,8 +25,8 @@ fun diffCallback() : DiffObservableList.Callback<CurrencyRate> {
 
 // Util
 
-fun setPrecision(float: Float, precision : Int) : Float {
-    return BigDecimal(float.toDouble()).setScale(precision, RoundingMode.HALF_EVEN).toFloat()
+fun setPrecision(float: Double, precision : Int) : Double {
+    return BigDecimal(float).setScale(precision, RoundingMode.HALF_EVEN).toDouble()
 }
 
 
